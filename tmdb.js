@@ -68,6 +68,40 @@ class Movie {
     }
 }
 
+class TV {
+    /**
+     * @param {TheMovieDB} tmdb A client to use
+     */
+    constructor(tmdb) {
+        this.tmdb = tmdb;
+    }
+
+    /**
+     * Returns information about a show
+     * @param {Number} id Show id
+     */
+    getDetails(id) {
+        return this.tmdb.fetch(`/tv/${id}`).then(r => r.json());
+    }
+
+    /**
+     * @param {Number=} page The page number. Minimum of 1.
+     * @returns {PagedResponse} The popular shows list
+     */
+    getPopular(page) {
+        page = page || 1;
+
+        return this.tmdb.fetch('/tv/popular', {
+            page,
+        }).then(async r =>
+            new PagedResponse(await r.json(), () => {
+                return this.getPopular(page + 1);
+            })
+        );
+    }
+
+}
+
 export default class TheMovieDB {
     /**
      * Creates a new API client
@@ -79,6 +113,7 @@ export default class TheMovieDB {
 
         this.common = new Common(this);
         this.movie = new Movie(this);
+        this.tv = new TV(this);
     }
 
     /**
@@ -100,8 +135,8 @@ export default class TheMovieDB {
 
         // query parameters
         var params = Object.entries(queryParams)
-        .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
-        .join('&');
+            .map(([k, v]) => encodeURIComponent(k) + '=' + encodeURIComponent(v))
+            .join('&');
 
         return window.fetch(baseUri + path + '?' + params, {
             method,
