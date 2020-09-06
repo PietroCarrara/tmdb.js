@@ -58,7 +58,9 @@ class Movie {
     getPopular(page) {
         page = page || 1;
 
-        return this.tmdb.fetch('/movie/popular').then(async r =>
+        return this.tmdb.fetch('/movie/popular', {
+            page,
+        }).then(async r =>
             new PagedResponse(await r.json(), () => {
                 return this.getPopular(page + 1);
             })
