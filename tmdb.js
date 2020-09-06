@@ -4,11 +4,14 @@ const baseImgUri = 'http://image.tmdb.org/t/p';
 class PagedResponse {
     /**
      * @param {Object} response The response
+     * @param {Number} currentPage The current page
      * @param {Function<PagedResponse>} next Callback that returns the next page. Null if there is no next page.
      */
-    constructor(response, next) {
+    constructor(response, currentPage, next) {
         this.response = response;
-        this.next = next;
+        if (currentPage < response.total_pages) {
+            this.next = next;
+        }
     }
 }
 
@@ -61,8 +64,42 @@ class Movie {
         return this.tmdb.fetch('/movie/popular', {
             page,
         }).then(async r =>
-            new PagedResponse(await r.json(), () => {
+            new PagedResponse(await r.json(), page, () => {
                 return this.getPopular(page + 1);
+            })
+        );
+    }
+
+    /**
+     * @param {Number} id The id of the movie to get similar content
+     * @param {Number=} page The page number. Minimum of 1.
+     * @returns {PagedResponse} The related movies list
+     */
+    getSimilar(id, page) {
+        page = page || 1;
+
+        return this.tmdb.fetch(`/movie/${id}/similar`, {
+            page,
+        }).then(async r =>
+            new PagedResponse(await r.json(), page, () => {
+                return this.getSimilar(id, page + 1);
+            })
+        );
+    }
+
+    /**
+     * @param {Number} id The id of the movie to get recomendations for
+     * @param {Number=} page The page number. Minimum of 1.
+     * @returns {PagedResponse} The related movies list
+     */
+    getRecommended(id, page) {
+        page = page || 1;
+
+        return this.tmdb.fetch(`/movie/${id}/recommendations`, {
+            page,
+        }).then(async r =>
+            new PagedResponse(await r.json(), page, () => {
+                return this.getRecommended(id, page + 1);
             })
         );
     }
