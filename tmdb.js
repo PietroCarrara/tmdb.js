@@ -103,6 +103,14 @@ class Movie {
             })
         );
     }
+
+    /**
+     * Returns videos of a movie
+     * @param {number} id The movie id
+     */
+    getVideos(id) {
+        return this.tmdb.fetch(`/movie/${id}/videos`).then(r => r.json());
+    }
 }
 
 class TV {
