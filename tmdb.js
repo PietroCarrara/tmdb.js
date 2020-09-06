@@ -1,6 +1,17 @@
 const baseUri = 'http://api.themoviedb.org/3';
 const baseImgUri = 'http://image.tmdb.org/t/p';
 
+class PagedResponse {
+    /**
+     * @param {Object} response The response
+     * @param {Function<PagedResponse>} next Callback that returns the next page. Null if there is no next page.
+     */
+    constructor(response, next) {
+        this.response = response;
+        this.next = next;
+    }
+}
+
 class Common {
 
     /**
@@ -11,7 +22,6 @@ class Common {
     }
 
     /**
-     *
      * @param {string} relative Relative url to the image
      * @param {string} size A tmdb size (w500, w342...)
      */
@@ -39,6 +49,20 @@ class Movie {
      */
     getDetails(id) {
         return this.tmdb.fetch(`/movie/${id}`).then(r => r.json());
+    }
+
+    /**
+     * @param {Number=} page The page number. Minimum of 1.
+     * @returns {PagedResponse} The popular movies list
+     */
+    getPopular(page) {
+        page = page || 1;
+
+        return this.tmdb.fetch('/movie/popular').then(async r =>
+            new PagedResponse(await r.json(), () => {
+                return this.getPopular(page + 1);
+            })
+        );
     }
 }
 
