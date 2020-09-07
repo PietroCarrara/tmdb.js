@@ -206,6 +206,77 @@ class TV {
 
 }
 
+class Search {
+    /**
+     * @param {TheMovieDB} tmdb A client to use
+     */
+    constructor(tmdb) {
+        this.tmdb = tmdb;
+    }
+
+    /**
+     * Search for a movie
+     * @param {String} name Name or part of the name of the movie
+     * @param {Number=} page Page of the search. Defaults to 1
+     * @param {Object} opts Optional search parameters
+     * @param {Boolean} opts.includeAdult Whether to inlcude adult (pornography) content in the results
+     * @param {String} opts.region ISO 3166-1 code to filter release dates. Must be uppercase
+     * @param {Number} opts.year Year of release
+     * @param {Number} opts.primaryReleaseYear Primary year of release
+     */
+    movie(name, page, opts) {
+        page = page || 1;
+
+        var params = {
+            query: name,
+            page,
+        };
+
+        if (opts) {
+            if (opts.includeAdult) params.include_adult = opts.includeAdult;
+            if (opts.region) params.region = opts.region;
+            if (opts.year) params.year = opts.year;
+            if (opts.primaryReleaseYear) params.primary_release_year = opts.primaryReleaseYear;
+        }
+
+        return this.tmdb.fetch('/search/movie', params).then(async r => new PagedResponse(
+            await r.json(),
+            page,
+            () => this.movie(name, page + 1, opts),
+        ));
+    }
+
+    /**
+     * Search for a tv show
+     * @param {String} name Name or part of the name of the show
+     * @param {Number=} page Page of the search. Defaults to 1
+     * @param {Object} opts Optional search parameters
+     * @param {Boolean} opts.includeAdult Whether to inlcude adult (pornography) content in the results
+     * @param {Number} opts.firstAirDateYear Primary year of release
+     */
+    tv(name, page, opts) {
+        page = page || 1;
+
+        var params = {
+            query: name,
+            page,
+        };
+
+        if (opts) {
+            if (opts.includeAdult) params.include_adult = opts.includeAdult;
+            if (opts.region) params.region = opts.region;
+            if (opts.year) params.year = opts.year;
+            if (opts.firstAirDateYear) params.first_air_date_year = opts.firstAirDateYear;
+        }
+
+        return this.tmdb.fetch('/search/tv', params).then(async r => new PagedResponse(
+            await r.json(),
+            page,
+            () => this.tv(name, page + 1, opts),
+        ));
+    }
+}
+
 export default class TheMovieDB {
     /**
      * Creates a new API client
@@ -218,6 +289,7 @@ export default class TheMovieDB {
         this.common = new Common(this);
         this.movie = new Movie(this);
         this.tv = new TV(this);
+        this.search = new Search(this);
     }
 
     /**
