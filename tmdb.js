@@ -90,7 +90,7 @@ class Movie {
     /**
      * @param {Number} id The id of the movie to get recomendations for
      * @param {Number=} page The page number. Minimum of 1.
-     * @returns {PagedResponse} The related movies list
+     * @returns {PagedResponse} The recommended movies list
      */
     getRecommended(id, page) {
         page = page || 1;
@@ -143,6 +143,48 @@ class TV {
                 return this.getPopular(page + 1);
             })
         );
+    }
+
+    /**
+     * @param {Number} id The id of the show to get similar content
+     * @param {Number=} page The page number. Minimum of 1.
+     * @returns {PagedResponse} The related shows list
+     */
+    getSimilar(id, page) {
+        page = page || 1;
+
+        return this.tmdb.fetch(`/tv/${id}/similar`, {
+            page,
+        }).then(async r =>
+            new PagedResponse(await r.json(), page, () => {
+                return this.getSimilar(id, page + 1);
+            })
+        );
+    }
+
+    /**
+     * @param {Number} id The id of the show to get recomendations for
+     * @param {Number=} page The page number. Minimum of 1.
+     * @returns {PagedResponse} The recommended shows list
+     */
+    getRecommended(id, page) {
+        page = page || 1;
+
+        return this.tmdb.fetch(`/tv/${id}/recommendations`, {
+            page,
+        }).then(async r =>
+            new PagedResponse(await r.json(), page, () => {
+                return this.getRecommended(id, page + 1);
+            })
+        );
+    }
+
+    /**
+     * Returns videos of a movie
+     * @param {number} id The movie id
+     */
+    getVideos(id) {
+        return this.tmdb.fetch(`/tv/${id}/videos`).then(r => r.json());
     }
 
     /**
