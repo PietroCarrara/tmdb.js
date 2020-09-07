@@ -130,6 +130,15 @@ class TV {
     }
 
     /**
+     * Returns details about a shows season
+     * @param {Number} id Show ID
+     * @param {Number} seasonNumber The number of the season
+     */
+    getSeasonDetails(id, seasonNumber) {
+        return this.tmdb.fetch(`/tv/${id}/season/${seasonNumber}`).then(r => r.json());
+    }
+
+    /**
      * @param {Number=} page The page number. Minimum of 1.
      * @returns {PagedResponse} The popular shows list
      */
