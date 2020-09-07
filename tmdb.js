@@ -139,7 +139,7 @@ class TV {
         return this.tmdb.fetch('/tv/popular', {
             page,
         }).then(async r =>
-            new PagedResponse(await r.json(), () => {
+            new PagedResponse(await r.json(), page, () => {
                 return this.getPopular(page + 1);
             })
         );
