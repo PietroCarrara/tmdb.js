@@ -145,6 +145,14 @@ class TV {
         );
     }
 
+    /**
+     * Returns the external IDs of a show
+     * @param {Number} id The show ID
+     */
+    getExternalIDs(id) {
+        return this.tmdb.fetch(`/tv/${id}/external_ids`).then(r => r.json());
+    }
+
 }
 
 export default class TheMovieDB {
