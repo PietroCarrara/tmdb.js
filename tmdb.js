@@ -277,7 +277,7 @@ class Search {
     }
 }
 
-export default class TheMovieDB {
+class TheMovieDB {
     /**
      * Creates a new API client
      * @param {string} key Your API key
@@ -320,3 +320,9 @@ export default class TheMovieDB {
         });
     }
 }
+
+export {
+    TheMovieDB,
+    Movie,
+    TV,
+};
